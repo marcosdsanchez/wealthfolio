@@ -293,20 +293,24 @@ impl SnapshotService {
                     activity.activity_date,
                     timezone_offset_minutes,
                 )
-                .date()
+                .map(|dt| dt.date())
             })
+            .collect::<Result<Vec<_>>>()?
+            .into_iter()
             .min()
-            .unwrap_or_else(|| {
+            .unwrap_or(
                 crate::utils::date_utils::utc_to_local_with_offset(
                     Utc::now(),
                     timezone_offset_minutes,
-                )
-                .date()
-            });
+                )?
+                .date(),
+            );
 
-        let calculation_end_date =
-            crate::utils::date_utils::utc_to_local_with_offset(Utc::now(), timezone_offset_minutes)
-                .date();
+        let calculation_end_date = crate::utils::date_utils::utc_to_local_with_offset(
+            Utc::now(),
+            timezone_offset_minutes,
+        )?
+        .date();
 
         Ok((
             accounts_to_process,
@@ -340,7 +344,7 @@ impl SnapshotService {
             let local_date = crate::utils::date_utils::utc_to_local_with_offset(
                 activity.activity_date,
                 timezone_offset_minutes,
-            )
+            )?
             .date();
 
             activities_by_account_date
@@ -359,7 +363,7 @@ impl SnapshotService {
                 let local_date = crate::utils::date_utils::utc_to_local_with_offset(
                     activity.activity_date,
                     timezone_offset_minutes,
-                )
+                )?
                 .date();
 
                 total_activities_by_date

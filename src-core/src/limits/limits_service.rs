@@ -151,11 +151,11 @@ impl ContributionLimitServiceTrait for ContributionLimitService {
             let start_utc = crate::utils::date_utils::local_to_utc_with_offset(
                 start_local,
                 timezone_offset_minutes,
-            );
+            )?;
             let end_utc = crate::utils::date_utils::local_to_utc_with_offset(
                 end_local,
                 timezone_offset_minutes,
-            );
+            )?;
             (start_utc.naive_utc(), end_utc.naive_utc())
         } else {
             let year = limit.contribution_year;
@@ -180,11 +180,11 @@ impl ContributionLimitServiceTrait for ContributionLimitService {
             let start_utc = crate::utils::date_utils::local_to_utc_with_offset(
                 start_local,
                 timezone_offset_minutes,
-            );
+            )?;
             let end_utc = crate::utils::date_utils::local_to_utc_with_offset(
                 end_local,
                 timezone_offset_minutes,
-            );
+            )?;
             (start_utc.naive_utc(), end_utc.naive_utc())
         };
 
