@@ -2,6 +2,7 @@ import { calculateDepositsForLimit, getContributionLimit } from "@/commands/cont
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getTimezoneOffsetMinutes } from "@/lib/date-utils";
 import { QueryKeys } from "@/lib/query-keys";
 import { ContributionLimit, DepositsCalculation } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
@@ -26,7 +27,7 @@ export function AccountContributionLimit({ accountId }: AccountContributionLimit
 
   const { data: deposits, isLoading: isDepositsLoading } = useQuery<DepositsCalculation, Error>({
     queryKey: [QueryKeys.CONTRIBUTION_LIMIT_PROGRESS, accountId, currentYear],
-    queryFn: () => calculateDepositsForLimit(limitForAccount?.id ?? ""),
+    queryFn: () => calculateDepositsForLimit(limitForAccount?.id ?? "", getTimezoneOffsetMinutes()),
     enabled: !isLimitsLoading,
   });
 

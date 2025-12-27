@@ -91,12 +91,20 @@ pub async fn delete_contribution_limit(
 #[tauri::command]
 pub async fn calculate_deposits_for_contribution_limit(
     limit_id: String,
+    timezone_offset_minutes: i32,
     state: State<'_, Arc<ServiceContext>>,
 ) -> Result<DepositsCalculation, String> {
-    debug!("Calculating deposits for contribution limit...");
+    debug!(
+        "Calculating deposits for contribution limit with offset {}...",
+        timezone_offset_minutes
+    );
     let base_currency = state.base_currency.read().unwrap();
     state
         .limits_service()
-        .calculate_deposits_for_contribution_limit(&limit_id, &base_currency)
+        .calculate_deposits_for_contribution_limit(
+            &limit_id,
+            &base_currency,
+            timezone_offset_minutes,
+        )
         .map_err(|e| format!("Failed to calculate deposits for contribution limit: {}", e))
 }

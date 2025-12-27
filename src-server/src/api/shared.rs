@@ -26,6 +26,7 @@ pub struct PortfolioRequestBody {
     pub symbols: Option<Vec<String>>,
     #[serde(default)]
     pub refetch_all_market_data: bool,
+    pub timezone_offset_minutes: Option<i32>,
 }
 
 impl PortfolioRequestBody {
@@ -35,6 +36,7 @@ impl PortfolioRequestBody {
             symbols: self.symbols,
             refetch_all_market_data: force_full_recalculation || self.refetch_all_market_data,
             force_full_recalculation,
+            timezone_offset_minutes: self.timezone_offset_minutes,
         }
     }
 }
@@ -44,6 +46,7 @@ pub struct PortfolioJobConfig {
     pub symbols: Option<Vec<String>>,
     pub refetch_all_market_data: bool,
     pub force_full_recalculation: bool,
+    pub timezone_offset_minutes: Option<i32>,
 }
 
 /// Enqueue a background portfolio job that will publish SSE events as it runs.
@@ -91,6 +94,7 @@ pub fn trigger_account_portfolio_job(state: Arc<AppState>, impact: AccountPortfo
             symbols,
             refetch_all_market_data: false,
             force_full_recalculation: true,
+            timezone_offset_minutes: None,
         },
     );
 }
@@ -104,6 +108,7 @@ pub fn trigger_lightweight_portfolio_update(state: Arc<AppState>) {
             symbols: None,
             refetch_all_market_data: false,
             force_full_recalculation: false,
+            timezone_offset_minutes: None,
         },
     );
 }
@@ -117,6 +122,7 @@ pub fn trigger_full_portfolio_recalc(state: Arc<AppState>) {
             symbols: None,
             refetch_all_market_data: false,
             force_full_recalculation: true,
+            timezone_offset_minutes: None,
         },
     );
 }
@@ -207,15 +213,20 @@ pub async fn process_portfolio_job(
 
     if !account_ids.is_empty() {
         let ids_slice = account_ids.as_slice();
+        let timezone_offset_minutes = config.timezone_offset_minutes.unwrap_or_else(|| {
+            tracing::warn!("No timezone_offset_minutes provided in portfolio job config. Defaulting to UTC (0).");
+            0
+        });
+
         let snapshot_result = if config.force_full_recalculation {
             state
                 .snapshot_service
-                .force_recalculate_holdings_snapshots(Some(ids_slice))
+                .force_recalculate_holdings_snapshots(Some(ids_slice), timezone_offset_minutes)
                 .await
         } else {
             state
                 .snapshot_service
-                .calculate_holdings_snapshots(Some(ids_slice))
+                .calculate_holdings_snapshots(Some(ids_slice), timezone_offset_minutes)
                 .await
         };
 
@@ -324,6 +335,7 @@ pub fn trigger_activity_portfolio_job(state: Arc<AppState>, impacts: Vec<Activit
         },
         refetch_all_market_data: true,
         force_full_recalculation: true,
+        timezone_offset_minutes: None,
     };
 
     enqueue_portfolio_job(state, config);

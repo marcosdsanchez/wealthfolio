@@ -1,34 +1,35 @@
 import { useAccounts } from "@/hooks/use-accounts";
 import { useBalancePrivacy } from "@/hooks/use-balance-privacy";
 import {
-  useRecalculatePortfolioMutation,
-  useUpdatePortfolioMutation,
+    useRecalculatePortfolioMutation,
+    useUpdatePortfolioMutation,
 } from "@/hooks/use-calculate-portfolio";
 import { useHoldings } from "@/hooks/use-holdings";
 import { usePersistentState } from "@/hooks/use-persistent-state";
 import { useIsMobileViewport } from "@/hooks/use-platform";
 import { AccountType, HoldingType, PORTFOLIO_ACCOUNT_ID } from "@/lib/constants";
+import { getTimezoneOffsetMinutes } from "@/lib/date-utils";
 import { useSettingsContext } from "@/lib/settings-provider";
 import { Account } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useNavigation } from "@/pages/layouts/navigation/app-navigation";
 import { useNavigationMode } from "@/pages/layouts/navigation/navigation-mode-context";
 import {
-  Command,
-  CommandDialog,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  DialogDescription,
-  DialogTitle,
-  Icons,
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  type Icon,
+    Command,
+    CommandDialog,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+    DialogDescription,
+    DialogTitle,
+    Icons,
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+    type Icon,
 } from "@wealthfolio/ui";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -483,7 +484,7 @@ export function AppLauncher() {
       if (isUpdatingPortfolio) {
         return;
       }
-      updatePortfolio();
+      updatePortfolio(getTimezoneOffsetMinutes());
       setSearch("");
       setOpen(false);
       return;
@@ -493,7 +494,7 @@ export function AppLauncher() {
       if (isRecalculatingPortfolio) {
         return;
       }
-      recalculatePortfolio();
+      recalculatePortfolio(getTimezoneOffsetMinutes());
       setSearch("");
       setOpen(false);
       return;

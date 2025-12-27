@@ -1,13 +1,14 @@
-import { ReactNode } from "react";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Icons } from "@/components/ui/icons";
 import {
-  useUpdatePortfolioMutation,
-  useRecalculatePortfolioMutation,
+    useRecalculatePortfolioMutation,
+    useUpdatePortfolioMutation,
 } from "@/hooks/use-calculate-portfolio";
+import { getTimezoneOffsetMinutes } from "@/lib/date-utils";
 import { formatDateTime } from "@/lib/utils";
+import { ReactNode } from "react";
 
 // Rename interface
 interface PortfolioUpdateTriggerProps {
@@ -27,11 +28,11 @@ export function PortfolioUpdateTrigger({
 
   // Define handlers internally
   const handleUpdate = () => {
-    updatePortfolioMutation.mutate();
+    updatePortfolioMutation.mutate(getTimezoneOffsetMinutes());
   };
 
   const handleRecalculate = () => {
-    recalculatePortfolioMutation.mutate();
+    recalculatePortfolioMutation.mutate(getTimezoneOffsetMinutes());
   };
 
   return (

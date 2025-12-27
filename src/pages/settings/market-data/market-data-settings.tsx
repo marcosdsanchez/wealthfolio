@@ -17,17 +17,18 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import {
-  useRecalculatePortfolioMutation,
-  useUpdatePortfolioMutation,
+    useRecalculatePortfolioMutation,
+    useUpdatePortfolioMutation,
 } from "@/hooks/use-calculate-portfolio";
+import { getTimezoneOffsetMinutes } from "@/lib/date-utils";
 import { QueryKeys } from "@/lib/query-keys";
 import { cn } from "@/lib/utils";
 import { ActionConfirm } from "@wealthfolio/ui";
 import {
-  useDeleteApiKey,
-  useMarketDataProviderSettings,
-  useSetApiKey,
-  useUpdateMarketDataProviderSettings,
+    useDeleteApiKey,
+    useMarketDataProviderSettings,
+    useSetApiKey,
+    useUpdateMarketDataProviderSettings,
 } from "./use-market-data-settings";
 
 const useApiKeyStatus = (providerId: string) => {
@@ -374,7 +375,7 @@ export default function MarketDataSettingsPage() {
           </Button>
           {/* Mobile icon-only actions */}
           <ActionConfirm
-            handleConfirm={() => recalculatePortfolio()}
+            handleConfirm={() => recalculatePortfolio(getTimezoneOffsetMinutes())}
             isPending={isRecalculating}
             confirmTitle="Are you sure?"
             confirmMessage="This will refetch all market data history and recalculate the portfolio."
@@ -402,7 +403,7 @@ export default function MarketDataSettingsPage() {
             size="icon"
             className="sm:hidden"
             disabled={isUpdating}
-            onClick={() => updatePortfolio()}
+            onClick={() => updatePortfolio(getTimezoneOffsetMinutes())}
             aria-label="Update"
           >
             {isUpdating ? (
@@ -414,7 +415,7 @@ export default function MarketDataSettingsPage() {
 
           {/* Desktop buttons with labels */}
           <ActionConfirm
-            handleConfirm={() => recalculatePortfolio()}
+            handleConfirm={() => recalculatePortfolio(getTimezoneOffsetMinutes())}
             isPending={isRecalculating}
             confirmTitle="Are you sure?"
             confirmMessage="This will refetch all market data history and recalculate the portfolio."
@@ -442,7 +443,7 @@ export default function MarketDataSettingsPage() {
             size="sm"
             className="hidden sm:inline-flex"
             disabled={isUpdating}
-            onClick={() => updatePortfolio()}
+            onClick={() => updatePortfolio(getTimezoneOffsetMinutes())}
           >
             {isUpdating ? (
               <Icons.Spinner className="mr-2 h-4 w-4 animate-spin" />

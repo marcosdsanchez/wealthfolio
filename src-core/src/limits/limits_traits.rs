@@ -33,10 +33,14 @@ pub trait ContributionLimitServiceTrait: Send + Sync {
         updated_limit: NewContributionLimit,
     ) -> Result<ContributionLimit>;
     async fn delete_contribution_limit(&self, id: &str) -> Result<()>;
+    /// Calculates the deposits for a specific contribution limit, taking into account the user's local timezone.
+    /// `timezone_offset_minutes`: Minutes to add to UTC to obtain local time (Local = UTC + offset).
+    /// Example: UTC-3 => -180
     fn calculate_deposits_for_contribution_limit(
         &self,
         limit_id: &str,
         base_currency: &str,
+        timezone_offset_minutes: i32,
     ) -> Result<DepositsCalculation>;
     // Note: calculate_deposits_by_period might be better as a private helper or part of the trait if needed elsewhere
 }

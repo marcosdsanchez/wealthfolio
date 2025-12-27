@@ -1,5 +1,6 @@
 import { useUpdatePortfolioMutation } from "@/hooks/use-calculate-portfolio";
 import { useHapticFeedback } from "@/hooks/use-haptic-feedback";
+import { getTimezoneOffsetMinutes } from "@/lib/date-utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useRef, useState } from "react";
 
@@ -55,7 +56,7 @@ export function usePullToRefresh({
       if (onRefresh) {
         await onRefresh();
       } else {
-        await triggerPortfolioUpdate();
+        await triggerPortfolioUpdate(getTimezoneOffsetMinutes());
         await queryClient.invalidateQueries();
       }
     } catch (error) {

@@ -121,6 +121,7 @@ impl ContributionLimitServiceTrait for ContributionLimitService {
         &self,
         limit_id: &str,
         base_currency: &str,
+        timezone_offset_minutes: i32,
     ) -> Result<DepositsCalculation> {
         let limit = self.limit_repository.get_contribution_limit(limit_id)?;
 
@@ -138,15 +139,27 @@ impl ContributionLimitServiceTrait for ContributionLimitService {
             }
         };
 
-        if let (Some(start_str), Some(end_str)) = (limit.start_date, limit.end_date) {
-            let start = NaiveDateTime::parse_from_str(&start_str, "%Y-%m-%dT%H:%M:%S%.3fZ")
+        let (start, end) = if let (Some(start_str), Some(end_str)) =
+            (limit.start_date, limit.end_date)
+        {
+            let start_local = NaiveDateTime::parse_from_str(&start_str, "%Y-%m-%dT%H:%M:%S%.3fZ")
                 .map_err(|e| Error::Validation(ValidationError::DateTimeParse(e)))?;
-            let end = NaiveDateTime::parse_from_str(&end_str, "%Y-%m-%dT%H:%M:%S%.3fZ")
+            let end_local = NaiveDateTime::parse_from_str(&end_str, "%Y-%m-%dT%H:%M:%S%.3fZ")
                 .map_err(|e| Error::Validation(ValidationError::DateTimeParse(e)))?;
-            self.calculate_deposits_by_period(&account_ids, start, end, base_currency)
+
+            // Convert Local bounds to UTC Query window
+            let start_utc = crate::utils::date_utils::local_to_utc_with_offset(
+                start_local,
+                timezone_offset_minutes,
+            );
+            let end_utc = crate::utils::date_utils::local_to_utc_with_offset(
+                end_local,
+                timezone_offset_minutes,
+            );
+            (start_utc.naive_utc(), end_utc.naive_utc())
         } else {
             let year = limit.contribution_year;
-            let start = NaiveDateTime::new(
+            let start_local = NaiveDateTime::new(
                 chrono::NaiveDate::from_ymd_opt(year, 1, 1).ok_or_else(|| {
                     Error::Validation(ValidationError::InvalidInput(
                         "Invalid start date".to_string(),
@@ -154,7 +167,7 @@ impl ContributionLimitServiceTrait for ContributionLimitService {
                 })?,
                 chrono::NaiveTime::from_hms_opt(0, 0, 0).unwrap(),
             );
-            let end = NaiveDateTime::new(
+            let end_local = NaiveDateTime::new(
                 chrono::NaiveDate::from_ymd_opt(year, 12, 31).ok_or_else(|| {
                     Error::Validation(ValidationError::InvalidInput(
                         "Invalid start date".to_string(),
@@ -162,7 +175,19 @@ impl ContributionLimitServiceTrait for ContributionLimitService {
                 })?,
                 chrono::NaiveTime::from_hms_opt(23, 59, 59).unwrap(),
             );
-            self.calculate_deposits_by_period(&account_ids, start, end, base_currency)
-        }
+
+            // Convert Local year boundaries to UTC Query window
+            let start_utc = crate::utils::date_utils::local_to_utc_with_offset(
+                start_local,
+                timezone_offset_minutes,
+            );
+            let end_utc = crate::utils::date_utils::local_to_utc_with_offset(
+                end_local,
+                timezone_offset_minutes,
+            );
+            (start_utc.naive_utc(), end_utc.naive_utc())
+        };
+
+        self.calculate_deposits_by_period(&account_ids, start, end, base_currency)
     }
 }

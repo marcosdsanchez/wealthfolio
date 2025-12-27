@@ -1156,7 +1156,7 @@ mod tests {
         );
 
         // should insert keyframes without error
-        let saved = svc.calculate_holdings_snapshots(None).await.unwrap();
+        let saved = svc.calculate_holdings_snapshots(None, 0).await.unwrap();
         assert!(saved >= 2, "at least two keyframes expected");
     }
 
@@ -1214,7 +1214,7 @@ mod tests {
         );
 
         // should compile & run without type errors and save ≥ 1 frame
-        let saved = svc.calculate_holdings_snapshots(None).await.unwrap();
+        let saved = svc.calculate_holdings_snapshots(None, 0).await.unwrap();
         assert!(saved >= 1, "expected at least one keyframe saved");
 
         // dividend must NOT change net_contribution, but other activities (like deposits) should.
@@ -1241,5 +1241,88 @@ mod tests {
         let second_frame = &frames_sorted[1];
         assert_eq!(second_frame.net_contribution, dec!(15000), "Second keyframe should reflect both deposits, ignoring the dividend for net contribution calculation.");
         assert_eq!(second_frame.snapshot_date, d2);
+    }
+
+    #[tokio::test]
+    async fn test_timezone_aware_snapshot_calculation() {
+        let base = Arc::new(RwLock::new("USD".to_string()));
+        let mut account_repo = MockAccountRepository::new();
+        let acc = create_test_account("acc1", "USD", "TZ Test");
+        account_repo.add_account(acc.clone());
+        let account_repo = Arc::new(account_repo);
+
+        // Scenario: Activity at Jan 1st 01:00 UTC
+        // If offset is -180 (UTC-3), it's Dec 31st 22:00 Local.
+        // If offset is 0, it's Jan 1st 01:00 Local.
+        let activity_date = DateTime::from_naive_utc_and_offset(
+            NaiveDate::from_ymd_opt(2024, 1, 1)
+                .unwrap()
+                .and_hms_opt(1, 0, 0)
+                .unwrap(),
+            Utc,
+        );
+
+        let act = Activity {
+            id: "act1".into(),
+            account_id: acc.id.clone(),
+            asset_id: "$CASH-USD".into(),
+            activity_type: "DEPOSIT".into(),
+            activity_date,
+            quantity: Decimal::ZERO,
+            unit_price: Decimal::ZERO,
+            currency: "USD".into(),
+            fee: Decimal::ZERO,
+            amount: Some(dec!(1000)),
+            is_draft: false,
+            comment: None,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+        };
+
+        let activity_repo = Arc::new(MockActivityRepositoryWithData::new(vec![act]));
+        let fx = Arc::new(MockFxService::new());
+        let snaps = Arc::new(MockSnapshotRepository::new());
+        let asset_repo = Arc::new(MockAssetRepository::new());
+
+        let svc = SnapshotService::new(
+            base.clone(),
+            account_repo.clone(),
+            activity_repo,
+            snaps.clone(),
+            asset_repo,
+            fx,
+        );
+
+        // 1. Run with offset -180 (UTC-3)
+        // Expected snapshot date: 2023-12-31
+        svc.calculate_holdings_snapshots(None, -180).await.unwrap();
+        let frames_neg = snaps.get_saved_snapshots();
+        assert!(frames_neg
+            .iter()
+            .any(|s| s.snapshot_date == NaiveDate::from_ymd_opt(2023, 12, 31).unwrap()));
+
+        // 2. Clear and run with offset 0 (UTC)
+        // Expected snapshot date: 2024-01-01
+        snaps
+            .delete_snapshots_by_account_ids(&[acc.id.clone()])
+            .await
+            .unwrap();
+        svc.calculate_holdings_snapshots(None, 0).await.unwrap();
+        let frames_utc = snaps.get_saved_snapshots();
+        assert!(frames_utc
+            .iter()
+            .any(|s| s.snapshot_date == NaiveDate::from_ymd_opt(2024, 1, 1).unwrap()));
+
+        // 3. Clear and run with offset 120 (UTC+2)
+        // Activity at 01:00 UTC -> 03:00 Local (Jan 1st)
+        snaps
+            .delete_snapshots_by_account_ids(&[acc.id.clone()])
+            .await
+            .unwrap();
+        svc.calculate_holdings_snapshots(None, 120).await.unwrap();
+        let frames_pos = snaps.get_saved_snapshots();
+        assert!(frames_pos
+            .iter()
+            .any(|s| s.snapshot_date == NaiveDate::from_ymd_opt(2024, 1, 1).unwrap()));
     }
 }

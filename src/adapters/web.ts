@@ -152,8 +152,11 @@ export const invokeWeb = async <T>(
       break;
     }
     case "get_holdings": {
-      const p = payload as { accountId: string };
+      const p = payload as { accountId: string; timezoneOffsetMinutes?: number };
       url += `?accountId=${encodeURIComponent(p.accountId)}`;
+      if (p.timezoneOffsetMinutes !== undefined) {
+        url += `&timezone_offset_minutes=${p.timezoneOffsetMinutes}`;
+      }
       break;
     }
     case "get_holding": {
@@ -314,6 +317,11 @@ export const invokeWeb = async <T>(
       body = JSON.stringify(newLimit);
       break;
     }
+    case "update_portfolio":
+    case "recalculate_portfolio": {
+      body = JSON.stringify(payload);
+      break;
+    }
     case "update_contribution_limit": {
       const { id, updatedLimit } = payload as { id: string; updatedLimit: Record<string, unknown> };
       url += `/${encodeURIComponent(id)}`;
@@ -331,8 +339,14 @@ export const invokeWeb = async <T>(
       break;
     }
     case "calculate_deposits_for_contribution_limit": {
-      const { limitId } = payload as { limitId: string };
+      const { limitId, timezoneOffsetMinutes } = payload as {
+        limitId: string;
+        timezoneOffsetMinutes?: number;
+      };
       url += `/${encodeURIComponent(limitId)}/deposits`;
+      if (timezoneOffsetMinutes !== undefined) {
+        url += `?timezone_offset_minutes=${timezoneOffsetMinutes}`;
+      }
       break;
     }
     case "get_asset_profile": {

@@ -1,5 +1,5 @@
-import { ContributionLimit, NewContributionLimit, DepositsCalculation } from "@/lib/types";
-import { getRunEnv, RUN_ENV, invokeTauri, invokeWeb, logger } from "@/adapters";
+import { getRunEnv, invokeTauri, invokeWeb, logger, RUN_ENV } from "@/adapters";
+import { ContributionLimit, DepositsCalculation, NewContributionLimit } from "@/lib/types";
 
 export const getContributionLimit = async (): Promise<ContributionLimit[]> => {
   try {
@@ -70,13 +70,22 @@ export const deleteContributionLimit = async (id: string): Promise<void> => {
   }
 };
 
-export const calculateDepositsForLimit = async (limitId: string): Promise<DepositsCalculation> => {
+export const calculateDepositsForLimit = async (
+  limitId: string,
+  timezoneOffsetMinutes?: number,
+): Promise<DepositsCalculation> => {
   try {
     switch (getRunEnv()) {
       case RUN_ENV.DESKTOP:
-        return invokeTauri("calculate_deposits_for_contribution_limit", { limitId });
+        return invokeTauri("calculate_deposits_for_contribution_limit", {
+          limitId,
+          timezone_offset_minutes: timezoneOffsetMinutes,
+        });
       case RUN_ENV.WEB:
-        return invokeWeb("calculate_deposits_for_contribution_limit", { limitId });
+        return invokeWeb("calculate_deposits_for_contribution_limit", {
+          limitId,
+          timezoneOffsetMinutes,
+        });
       default:
         throw new Error(`Unsupported`);
     }

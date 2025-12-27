@@ -98,6 +98,10 @@ fn handle_portfolio_request(handle: AppHandle, payload_str: &str, force_recalc: 
                                 handle_clone.clone(), // Clone again for this call
                                 accounts_to_recalc,
                                 force_recalc,
+                                payload.timezone_offset_minutes.unwrap_or_else(|| {
+                                    warn!("No timezone_offset_minutes provided in event payload. Defaulting to UTC (0).");
+                                    0
+                                }),
                             );
                         }
                         Err(e) => {
@@ -127,6 +131,7 @@ fn handle_portfolio_request(handle: AppHandle, payload_str: &str, force_recalc: 
                 .account_ids(None)
                 .symbols(None)
                 .refetch_all_market_data(false)
+                .timezone_offset_minutes(None)
                 .build();
             if force_recalc {
                 emit_portfolio_trigger_recalculate(&handle, fallback_payload);
@@ -152,6 +157,7 @@ fn handle_resource_change(handle: AppHandle, payload_str: &str) {
                         PortfolioRequestPayload::builder()
                             .account_ids(None)
                             .symbols(None)
+                            .timezone_offset_minutes(None)
                             .build(),
                     );
                 }
@@ -321,6 +327,7 @@ fn handle_portfolio_calculation(
     app_handle: AppHandle,
     account_ids_input: Option<Vec<String>>,
     force_full_recalculation: bool,
+    timezone_offset_minutes: i32,
 ) {
     if let Err(e) = app_handle.emit(PORTFOLIO_UPDATE_START, ()) {
         error!("Failed to emit {} event: {}", PORTFOLIO_UPDATE_START, e);
@@ -370,15 +377,17 @@ fn handle_portfolio_calculation(
         if !initially_targeted_active_accounts.is_empty() {
             let account_snapshot_result = if force_full_recalculation {
                 snapshot_service
-                    .force_recalculate_holdings_snapshots(Some(
-                        initially_targeted_active_accounts.as_slice(),
-                    ))
+                    .force_recalculate_holdings_snapshots(
+                        Some(initially_targeted_active_accounts.as_slice()),
+                        timezone_offset_minutes,
+                    )
                     .await
             } else {
                 snapshot_service
-                    .calculate_holdings_snapshots(Some(
-                        initially_targeted_active_accounts.as_slice(),
-                    ))
+                    .calculate_holdings_snapshots(
+                        Some(initially_targeted_active_accounts.as_slice()),
+                        timezone_offset_minutes,
+                    )
                     .await
             };
 

@@ -45,6 +45,7 @@ async fn update_settings(
                 symbols: None,
                 refetch_all_market_data: true,
                 force_full_recalculation: true,
+                timezone_offset_minutes: None,
             };
 
             if let Err(err) = process_portfolio_job(state_for_job, job_config).await {

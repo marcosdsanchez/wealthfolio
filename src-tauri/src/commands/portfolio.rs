@@ -17,24 +17,32 @@ use wealthfolio_core::{
 };
 
 #[tauri::command]
-pub async fn recalculate_portfolio(handle: AppHandle) -> Result<(), String> {
+pub async fn recalculate_portfolio(
+    handle: AppHandle,
+    timezone_offset_minutes: Option<i32>,
+) -> Result<(), String> {
     debug!("Emitting PORTFOLIO_TRIGGER_RECALCULATE event...");
     let payload = PortfolioRequestPayload::builder()
         .account_ids(None) // None signifies all accounts
         .symbols(None) // None signifies all relevant symbols
         .refetch_all_market_data(true)
+        .timezone_offset_minutes(timezone_offset_minutes)
         .build();
     emit_portfolio_trigger_recalculate(&handle, payload);
     Ok(())
 }
 
 #[tauri::command]
-pub async fn update_portfolio(handle: AppHandle) -> Result<(), String> {
+pub async fn update_portfolio(
+    handle: AppHandle,
+    timezone_offset_minutes: Option<i32>,
+) -> Result<(), String> {
     debug!("Emitting PORTFOLIO_TRIGGER_UPDATE event...");
     let payload = PortfolioRequestPayload::builder()
         .account_ids(None) // None signifies all accounts
         .symbols(None) // None signifies all relevant symbols
         .refetch_all_market_data(false)
+        .timezone_offset_minutes(timezone_offset_minutes)
         .build();
     emit_portfolio_trigger_update(&handle, payload);
     Ok(())

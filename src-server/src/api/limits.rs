@@ -52,14 +52,27 @@ async fn delete_contribution_limit(
     Ok(StatusCode::NO_CONTENT)
 }
 
+#[derive(serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct DepositsQuery {
+    timezone_offset_minutes: Option<i32>,
+}
+
 async fn calculate_deposits_for_contribution_limit(
     Path(id): Path<String>,
+    axum::extract::Query(query): axum::extract::Query<DepositsQuery>,
     State(state): State<Arc<AppState>>,
 ) -> ApiResult<Json<DepositsCalculation>> {
     let base = state.base_currency.read().unwrap().clone();
+    let offset = query.timezone_offset_minutes.unwrap_or_else(|| {
+        tracing::warn!(
+            "No timezone_offset_minutes provided in deposits query. Defaulting to UTC (0)."
+        );
+        0
+    });
     let calc = state
         .limits_service
-        .calculate_deposits_for_contribution_limit(&id, &base)?;
+        .calculate_deposits_for_contribution_limit(&id, &base, offset)?;
     Ok(Json(calc))
 }
 

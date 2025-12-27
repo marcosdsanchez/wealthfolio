@@ -1,19 +1,19 @@
-import { getRunEnv, RUN_ENV, invokeTauri, invokeWeb, logger } from "@/adapters";
+import { getRunEnv, invokeTauri, invokeWeb, logger, RUN_ENV } from "@/adapters";
 import {
-  Holding,
-  IncomeSummary,
-  AccountValuation,
-  PerformanceMetrics,
-  SimplePerformanceMetrics,
+    AccountValuation,
+    Holding,
+    IncomeSummary,
+    PerformanceMetrics,
+    SimplePerformanceMetrics,
 } from "@/lib/types";
 
-export const updatePortfolio = async (): Promise<void> => {
+export const updatePortfolio = async (timezoneOffsetMinutes?: number): Promise<void> => {
   try {
     switch (getRunEnv()) {
       case RUN_ENV.DESKTOP:
-        return invokeTauri("update_portfolio");
+        return invokeTauri("update_portfolio", { timezone_offset_minutes: timezoneOffsetMinutes });
       case RUN_ENV.WEB:
-        return invokeWeb("update_portfolio");
+        return invokeWeb("update_portfolio", { timezone_offset_minutes: timezoneOffsetMinutes });
       default:
         throw new Error(`Unsupported`);
     }
@@ -23,13 +23,17 @@ export const updatePortfolio = async (): Promise<void> => {
   }
 };
 
-export const recalculatePortfolio = async (): Promise<void> => {
+export const recalculatePortfolio = async (timezoneOffsetMinutes?: number): Promise<void> => {
   try {
     switch (getRunEnv()) {
       case RUN_ENV.DESKTOP:
-        return invokeTauri("recalculate_portfolio");
+        return invokeTauri("recalculate_portfolio", {
+          timezone_offset_minutes: timezoneOffsetMinutes,
+        });
       case RUN_ENV.WEB:
-        return invokeWeb("recalculate_portfolio");
+        return invokeWeb("recalculate_portfolio", {
+          timezone_offset_minutes: timezoneOffsetMinutes,
+        });
       default:
         throw new Error(`Unsupported`);
     }
@@ -39,13 +43,16 @@ export const recalculatePortfolio = async (): Promise<void> => {
   }
 };
 
-export const getHoldings = async (accountId: string): Promise<Holding[]> => {
+export const getHoldings = async (
+  accountId: string,
+  timezoneOffsetMinutes?: number,
+): Promise<Holding[]> => {
   try {
     switch (getRunEnv()) {
       case RUN_ENV.DESKTOP:
-        return invokeTauri("get_holdings", { accountId });
+        return invokeTauri("get_holdings", { accountId, timezone_offset_minutes: timezoneOffsetMinutes });
       case RUN_ENV.WEB:
-        return invokeWeb("get_holdings", { accountId });
+        return invokeWeb("get_holdings", { accountId, timezoneOffsetMinutes });
       default:
         throw new Error(`Unsupported`);
     }

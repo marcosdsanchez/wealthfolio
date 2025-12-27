@@ -66,6 +66,7 @@ async fn update_asset_data_source(
             symbols: Some(vec![id]),
             refetch_all_market_data: true,
             force_full_recalculation: true,
+            timezone_offset_minutes: None,
         },
     );
     Ok(Json(asset))

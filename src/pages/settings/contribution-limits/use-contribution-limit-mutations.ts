@@ -1,21 +1,22 @@
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
-import {
-  deleteContributionLimit,
-  createContributionLimit,
-  updateContributionLimit,
-  calculateDepositsForLimit,
-} from "@/commands/contribution-limits";
-import { QueryKeys } from "@/lib/query-keys";
-import { toast } from "@/components/ui/use-toast";
-import { ContributionLimit, NewContributionLimit, DepositsCalculation } from "@/lib/types";
 import { logger } from "@/adapters";
+import {
+    calculateDepositsForLimit,
+    createContributionLimit,
+    deleteContributionLimit,
+    updateContributionLimit,
+} from "@/commands/contribution-limits";
+import { toast } from "@/components/ui/use-toast";
+import { getTimezoneOffsetMinutes } from "@/lib/date-utils";
+import { QueryKeys } from "@/lib/query-keys";
+import { ContributionLimit, DepositsCalculation, NewContributionLimit } from "@/lib/types";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useContributionLimitProgress = (limitId: string) => {
   return useQuery<DepositsCalculation>({
     queryKey: [QueryKeys.CONTRIBUTION_LIMIT_PROGRESS, limitId],
     queryFn: async () => {
       try {
-        return await calculateDepositsForLimit(limitId);
+        return await calculateDepositsForLimit(limitId, getTimezoneOffsetMinutes());
       } catch (e) {
         logger.error(`Error calculating deposits for limit: ${String(e)}`);
         toast({

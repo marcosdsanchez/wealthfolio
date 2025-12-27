@@ -98,6 +98,7 @@ async fn update_quote(
             symbols: Some(vec![target_symbol]),
             refetch_all_market_data: true,
             force_full_recalculation: false,
+            timezone_offset_minutes: None,
         },
     );
     Ok(StatusCode::NO_CONTENT)
@@ -115,6 +116,7 @@ async fn delete_quote(
             symbols: None,
             refetch_all_market_data: false,
             force_full_recalculation: false,
+            timezone_offset_minutes: None,
         },
     );
     Ok(StatusCode::NO_CONTENT)
@@ -151,6 +153,7 @@ async fn import_quotes_csv(
             symbols: None,
             refetch_all_market_data: false,
             force_full_recalculation: false,
+            timezone_offset_minutes: None,
         },
     );
 
@@ -175,6 +178,7 @@ async fn sync_market_data(
             symbols: body.symbols,
             refetch_all_market_data: body.refetch_all,
             force_full_recalculation: false,
+            timezone_offset_minutes: None,
         },
     );
     Ok(StatusCode::NO_CONTENT)

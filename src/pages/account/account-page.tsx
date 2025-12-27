@@ -1,17 +1,17 @@
 import { getHoldings } from "@/commands/portfolio";
 import { HistoryChart } from "@/components/history-chart";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  GainAmount,
-  GainPercent,
-  IntervalSelector,
-  Page,
-  PageContent,
-  PageHeader,
-  PrivacyAmount,
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+    GainAmount,
+    GainPercent,
+    IntervalSelector,
+    Page,
+    PageContent,
+    PageHeader,
+    PrivacyAmount,
 } from "@wealthfolio/ui";
 import { useMemo, useState } from "react";
 
@@ -19,34 +19,35 @@ import { MobileActionsMenu } from "@/components/mobile-actions-menu";
 import { PrivacyToggle } from "@/components/privacy-toggle";
 import { Button } from "@/components/ui/button";
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
 } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
 } from "@/components/ui/sheet";
 import { useAccounts } from "@/hooks/use-accounts";
 import { useValuationHistory } from "@/hooks/use-valuation-history";
 import { AccountType } from "@/lib/constants";
+import { getTimezoneOffsetMinutes } from "@/lib/date-utils";
 import { QueryKeys } from "@/lib/query-keys";
 import {
-  Account,
-  AccountValuation,
-  DateRange,
-  Holding,
-  TimePeriod,
-  TrackedItem,
+    Account,
+    AccountValuation,
+    DateRange,
+    Holding,
+    TimePeriod,
+    TrackedItem,
 } from "@/lib/types";
 import { calculatePerformanceMetrics, cn } from "@/lib/utils";
 import { PortfolioUpdateTrigger } from "@/pages/dashboard/portfolio-update-trigger";
@@ -98,7 +99,7 @@ const AccountPage = () => {
   // Query holdings to check if account has any assets
   const { data: holdings, isLoading: isHoldingsLoading } = useQuery<Holding[], Error>({
     queryKey: [QueryKeys.HOLDINGS, id],
-    queryFn: () => getHoldings(id),
+    queryFn: () => getHoldings(id, getTimezoneOffsetMinutes()),
   });
 
   // Check if account has any holdings (including cash)

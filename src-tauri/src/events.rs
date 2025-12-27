@@ -65,6 +65,8 @@ pub struct PortfolioRequestPayload {
     /// If syncing, specifies whether to refetch all symbols.
     #[serde(default)]
     pub refetch_all_market_data: bool,
+    /// User's local timezone offset in minutes (Local = UTC + offset).
+    pub timezone_offset_minutes: Option<i32>,
 }
 
 impl PortfolioRequestPayload {
@@ -80,6 +82,7 @@ pub struct PortfolioRequestPayloadBuilder {
     account_ids: Option<Vec<String>>,
     symbols: Option<Vec<String>>,
     refetch_all_market_data: Option<bool>,
+    timezone_offset_minutes: Option<i32>,
 }
 
 impl PortfolioRequestPayloadBuilder {
@@ -109,12 +112,19 @@ impl PortfolioRequestPayloadBuilder {
         self
     }
 
+    /// Sets the timezone offset in minutes.
+    pub fn timezone_offset_minutes(mut self, offset: Option<i32>) -> Self {
+        self.timezone_offset_minutes = offset;
+        self
+    }
+
     /// Builds the PortfolioRequestPayload.
     pub fn build(self) -> PortfolioRequestPayload {
         PortfolioRequestPayload {
             account_ids: self.account_ids,
             symbols: self.symbols,
             refetch_all_market_data: self.refetch_all_market_data.unwrap_or(false),
+            timezone_offset_minutes: self.timezone_offset_minutes,
         }
     }
 }
