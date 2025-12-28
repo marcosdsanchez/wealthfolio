@@ -16,7 +16,7 @@ const MAX_OFFSET_MINUTES: i32 = 840;
 /// * `Ok(offset)` if valid
 /// * `Err` if outside range [-720, +840]
 fn validate_offset(offset_minutes: i32) -> Result<i32> {
-    if offset_minutes < MIN_OFFSET_MINUTES || offset_minutes > MAX_OFFSET_MINUTES {
+    if !(MIN_OFFSET_MINUTES..=MAX_OFFSET_MINUTES).contains(&offset_minutes) {
         return Err(Error::Validation(ValidationError::InvalidInput(format!(
             "Invalid timezone offset: {} minutes. Valid range: {} to {} (UTC-12 to UTC+14).",
             offset_minutes, MIN_OFFSET_MINUTES, MAX_OFFSET_MINUTES

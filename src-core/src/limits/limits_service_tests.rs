@@ -3,7 +3,6 @@ mod tests {
     use async_trait::async_trait;
     use chrono::{DateTime, NaiveDate, NaiveDateTime, Utc};
     use rust_decimal::Decimal;
-    use rust_decimal_macros::dec;
     use std::sync::Arc;
 
     use crate::activities::activities_traits::ActivityRepositoryTrait;

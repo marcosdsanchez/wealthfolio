@@ -1304,7 +1304,7 @@ mod tests {
         // 2. Clear and run with offset 0 (UTC)
         // Expected snapshot date: 2024-01-01
         snaps
-            .delete_snapshots_by_account_ids(&[acc.id.clone()])
+            .delete_snapshots_by_account_ids(std::slice::from_ref(&acc.id))
             .await
             .unwrap();
         svc.calculate_holdings_snapshots(None, 0).await.unwrap();
@@ -1316,7 +1316,7 @@ mod tests {
         // 3. Clear and run with offset 120 (UTC+2)
         // Activity at 01:00 UTC -> 03:00 Local (Jan 1st)
         snaps
-            .delete_snapshots_by_account_ids(&[acc.id.clone()])
+            .delete_snapshots_by_account_ids(std::slice::from_ref(&acc.id))
             .await
             .unwrap();
         svc.calculate_holdings_snapshots(None, 120).await.unwrap();
