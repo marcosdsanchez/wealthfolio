@@ -1,8 +1,8 @@
 import { useAccounts } from "@/hooks/use-accounts";
 import { useBalancePrivacy } from "@/hooks/use-balance-privacy";
 import {
-    useRecalculatePortfolioMutation,
-    useUpdatePortfolioMutation,
+  useRecalculatePortfolioMutation,
+  useUpdatePortfolioMutation,
 } from "@/hooks/use-calculate-portfolio";
 import { useHoldings } from "@/hooks/use-holdings";
 import { usePersistentState } from "@/hooks/use-persistent-state";
@@ -15,21 +15,21 @@ import { cn } from "@/lib/utils";
 import { useNavigation } from "@/pages/layouts/navigation/app-navigation";
 import { useNavigationMode } from "@/pages/layouts/navigation/navigation-mode-context";
 import {
-    Command,
-    CommandDialog,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
-    DialogDescription,
-    DialogTitle,
-    Icons,
-    Sheet,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-    type Icon,
+  Command,
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  DialogDescription,
+  DialogTitle,
+  Icons,
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  type Icon,
 } from "@wealthfolio/ui";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";

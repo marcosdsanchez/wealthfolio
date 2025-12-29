@@ -17,18 +17,18 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import {
-    useRecalculatePortfolioMutation,
-    useUpdatePortfolioMutation,
+  useRecalculatePortfolioMutation,
+  useUpdatePortfolioMutation,
 } from "@/hooks/use-calculate-portfolio";
 import { getTimezoneOffsetMinutes } from "@/lib/date-utils";
 import { QueryKeys } from "@/lib/query-keys";
 import { cn } from "@/lib/utils";
 import { ActionConfirm } from "@wealthfolio/ui";
 import {
-    useDeleteApiKey,
-    useMarketDataProviderSettings,
-    useSetApiKey,
-    useUpdateMarketDataProviderSettings,
+  useDeleteApiKey,
+  useMarketDataProviderSettings,
+  useSetApiKey,
+  useUpdateMarketDataProviderSettings,
 } from "./use-market-data-settings";
 
 const useApiKeyStatus = (providerId: string) => {

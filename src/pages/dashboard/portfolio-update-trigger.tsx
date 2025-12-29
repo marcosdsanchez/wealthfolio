@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/button";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Icons } from "@/components/ui/icons";
 import {
-    useRecalculatePortfolioMutation,
-    useUpdatePortfolioMutation,
+  useRecalculatePortfolioMutation,
+  useUpdatePortfolioMutation,
 } from "@/hooks/use-calculate-portfolio";
 import { getTimezoneOffsetMinutes } from "@/lib/date-utils";
 import { formatDateTime } from "@/lib/utils";
